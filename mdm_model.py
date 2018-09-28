@@ -61,12 +61,19 @@ def model(images, inits, num_iterations=4, num_patches=68, patch_shape=(26, 26),
         # with tf.device('/cpu:0'):
         #     patches = tf.image.extract_patches(
         #         images, tf.constant(patch_shape), inits+dx)
-        # patches = tf.reshape(patches, (batch_size * num_patches,
-        #                                patch_shape[0], patch_shape[1], num_channels))
+        offset_d = tf.transpose(inits+dx,[1,0,2])
+        patchlist = [ tf.image.extract_glimpse(
+            images,
+            patch_shape,
+            offset_d[i]
+        )  for i in range(68)]
+        patches = tf.concat(patchlist,0)
+        patches = tf.reshape(patches, (batch_size * num_patches,
+                                       patch_shape[0], patch_shape[1], num_channels))
 
-        # 先用zero调通
-        patches = tf.zeros((batch_size * num_patches,
-                                       patch_shape[0], patch_shape[1], num_channels),dtype=tf.float32)
+        # # 先用zero调通
+        # patches = tf.zeros((batch_size * num_patches,
+        #                                patch_shape[0], patch_shape[1], num_channels),dtype=tf.float32)
         endpoints['patches'] = patches
 
         with tf.variable_scope('convnet', reuse=step > 0):
