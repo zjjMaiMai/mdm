@@ -1,0 +1,1 @@
+python mdm_eval.py --dataset_path="../300w/ibug/*.jpg" --num_examples=135 --eval_dir=ckpt/eval_ibug  --device='/cpu:0' --checkpoint_dir=$PWD/ckpt/train

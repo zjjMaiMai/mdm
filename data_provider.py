@@ -298,8 +298,8 @@ def batch_inputs(paths,
       lms_init: a tf tensor of shape [batch_size, 68, 2].
     """
 
-    files = tf.concat(0, [map(str, sorted(Path(d).parent.glob(Path(d).name)))
-                          for d in paths])
+    files = tf.concat([list(map(str, sorted(Path(d).parent.glob(Path(d).name))))
+                          for d in paths],0)
 
     filename_queue = tf.train.string_input_producer(files,
                                                     shuffle=is_training,

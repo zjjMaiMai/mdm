@@ -29,12 +29,13 @@ tf.app.flags.DEFINE_string('pretrained_model_checkpoint_path', '',
                            """before beginning any training.""")
 tf.app.flags.DEFINE_integer('max_steps', 100000,
                             """Number of batches to run.""")
-tf.app.flags.DEFINE_string('train_device', '/gpu:0', """Device to train with.""")
+tf.app.flags.DEFINE_string('train_device', '/gpu:0',
+                           """Device to train with.""")
 tf.app.flags.DEFINE_string('datasets', ':'.join(
     ('databases/lfpw/trainset/*.png', 'databases/afw/*.jpg',
      'databases/helen/trainset/*.jpg')),
-                           """Directory where to write event logs """
-                           """and checkpoint.""")
+    """Directory where to write event logs """
+    """and checkpoint.""")
 tf.app.flags.DEFINE_integer('patch_size', 30, 'The extracted patch size')
 # The decay to use for the moving average.
 MOVING_AVERAGE_DECAY = 0.9999
@@ -85,12 +86,12 @@ def train(scope=''):
             im.landmarks['PTS'] = lms
 
             if np.random.rand() < .5:
-               im = utils.mirror_image(im)
+                im = utils.mirror_image(im)
 
             if np.random.rand() < .5:
-              theta = np.random.normal(scale=rotation_stddev)
-              rot = menpo.transform.rotate_ccw_about_centre(lms, theta)
-              im = im.warp_to_shape(im.shape, rot)
+                theta = np.random.normal(scale=rotation_stddev)
+                rot = menpo.transform.rotate_ccw_about_centre(lms, theta)
+                im = im.warp_to_shape(im.shape, rot)
 
             pixels = im.pixels.transpose(1, 2, 0).astype('float32')
             shape = im.landmarks['PTS'].lms.points.astype('float32')
@@ -118,7 +119,8 @@ def train(scope=''):
         with tf.device(FLAGS.train_device):
             # Retain the summaries from the final tower.
             summaries = tf.get_collection(tf.GraphKeys.SUMMARIES, scope)
-            predictions, dxs, _ = mdm_model.model(images, inits, patch_shape=(FLAGS.patch_size, FLAGS.patch_size))
+            predictions, dxs, _ = mdm_model.model(
+                images, inits, patch_shape=(FLAGS.patch_size, FLAGS.patch_size))
 
             total_loss = 0
 
@@ -140,7 +142,7 @@ def train(scope=''):
                                 [tf.float32])
 
         summary = tf.image_summary('images',
-                                   tf.concat(2, [gt_images, pred_images]),
+                                   tf.concat([gt_images, pred_images], 2),
                                    max_images=5)
         summaries.append(tf.histogram_summary('dx', predictions - inits))
 
