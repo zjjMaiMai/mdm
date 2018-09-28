@@ -1,1 +1,1 @@
-python mdm_train.py --datasets='../300w/helen/testset/*.jpg'
+python mdm_train.py --datasets='../300w/ibug/*.jpg'

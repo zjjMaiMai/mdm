@@ -126,25 +126,25 @@ def train(scope=''):
 
             for i, dx in enumerate(dxs):
                 norm_error = mdm_model.normalized_rmse(dx + inits, lms)
-                tf.histogram_summary('errors', norm_error)
+                tf.summary.histogram('errors', norm_error)
                 loss = tf.reduce_mean(norm_error)
                 total_loss += loss
-                summaries.append(tf.scalar_summary('losses/step_{}'.format(i),
+                summaries.append(tf.summary.scalar('losses/step_{}'.format(i),
                                                    loss))
 
             # Calculate the gradients for the batch of data
             grads = opt.compute_gradients(total_loss)
 
-        summaries.append(tf.scalar_summary('losses/total', total_loss))
+        summaries.append(tf.summary.scalar('losses/total', total_loss))
         pred_images, = tf.py_func(utils.batch_draw_landmarks,
                                   [images, predictions], [tf.float32])
         gt_images, = tf.py_func(utils.batch_draw_landmarks, [images, lms],
                                 [tf.float32])
 
-        summary = tf.image_summary('images',
+        summary = tf.summary.image('images',
                                    tf.concat([gt_images, pred_images], 2),
-                                   max_images=5)
-        summaries.append(tf.histogram_summary('dx', predictions - inits))
+                                   max_outputs=5)
+        summaries.append(tf.summary.histogram('dx', predictions - inits))
 
         summaries.append(summary)
 
@@ -152,12 +152,12 @@ def train(scope=''):
                                               scope)
 
         # Add a summary to track the learning rate.
-        summaries.append(tf.scalar_summary('learning_rate', lr))
+        summaries.append(tf.summary.scalar('learning_rate', lr))
 
         # Add histograms for gradients.
         for grad, var in grads:
             if grad is not None:
-                summaries.append(tf.histogram_summary(var.op.name +
+                summaries.append(tf.summary.histogram(var.op.name +
                                                       '/gradients', grad))
 
         # Apply the gradients to adjust the shared variables.
@@ -165,7 +165,7 @@ def train(scope=''):
 
         # Add histograms for trainable variables.
         for var in tf.trainable_variables():
-            summaries.append(tf.histogram_summary(var.op.name, var))
+            summaries.append(tf.summary.histogram(var.op.name, var))
 
         # Track the moving averages of all trainable variables.
         # Note that we maintain a "double-average" of the BatchNormalization
@@ -189,7 +189,7 @@ def train(scope=''):
         saver = tf.train.Saver(tf.all_variables())
 
         # Build the summary operation from the last tower summaries.
-        summary_op = tf.merge_summary(summaries)
+        summary_op = tf.summary.merge(summaries)
         # Start running operations on the Graph. allow_soft_placement must be
         # set to True to build towers on GPU, as some of the ops do not have GPU
         # implementations.
@@ -212,10 +212,10 @@ def train(scope=''):
         # Start the queue runners.
         tf.train.start_queue_runners(sess=sess)
 
-        summary_writer = tf.train.SummaryWriter(FLAGS.train_dir)
+        summary_writer = tf.summary.FileWriter(FLAGS.train_dir)
 
         print('Starting training...')
-        for step in xrange(FLAGS.max_steps):
+        for step in range(FLAGS.max_steps):
             start_time = time.time()
             _, loss_value = sess.run([train_op, total_loss])
             duration = time.time() - start_time

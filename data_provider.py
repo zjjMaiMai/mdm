@@ -62,7 +62,7 @@ def align_reference_shape(reference_shape, bb):
     min_x, min_y = min_xy[0], min_xy[1]
     max_x, max_y = max_xy[0], max_xy[1]
 
-    reference_shape_bb = tf.pack([[min_x, min_y], [max_x, min_y],
+    reference_shape_bb = tf.stack([[min_x, min_y], [max_x, min_y],
                                   [max_x, max_y], [min_x, max_y]])
 
     def norm(x):
